@@ -17,17 +17,19 @@ public class Mecanum extends LinearOpMode {
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
 
-        Servo claw = null;
+        Servo claw = hardwareMap.servo.get("claw");
+
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        claw.setPosition(1);
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+
             double y = -gamepad1.left_stick_y; // Remember, this is reversed!
             double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x;
@@ -45,6 +47,17 @@ public class Mecanum extends LinearOpMode {
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
+            //claw code for opening and closing
+            if(gamepad1.left_bumper){
+                claw.setPosition(0.75);
+            } else if (gamepad1.right_bumper) {
+                claw.setPosition(1);
+            }
+
+            telemetry.addData("claw: ", claw.getPosition());
+//            telemetry.addData("y: ", y);
+//            telemetry.addData("rx: ", rx);
+            telemetry.update();
         }
     }
 }

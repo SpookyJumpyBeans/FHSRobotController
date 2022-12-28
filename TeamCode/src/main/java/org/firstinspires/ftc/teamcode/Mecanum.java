@@ -18,6 +18,7 @@ public class Mecanum extends LinearOpMode {
         DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
 
         DcMotor motorLift = hardwareMap.dcMotor.get("motorLift");
+        motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         Servo claw = hardwareMap.servo.get("claw");
 
@@ -56,37 +57,37 @@ public class Mecanum extends LinearOpMode {
             //Level 1
             if(gamepad2.a)
             {
-                motorLift.setPower(0.3);
+                motorLift.setPower(0.5);
                 level1 = true;
             }
-            if(motorLift.getCurrentPosition()>=2000 && level1){
+            if(motorLift.getCurrentPosition()>=200 && level1){
                 motorLift.setPower(0);
                 level1 = false;
             }
             //Level 2
             if(gamepad2.b)
             {
-                motorLift.setPower(0.3);
+                motorLift.setPower(0.5);
                 level2 = true;
             }
-            if(motorLift.getCurrentPosition()>=4000 && level2){
+            if(motorLift.getCurrentPosition()>=300 && level2){
                 motorLift.setPower(0);
                 level2 = false;
             }
             //Level 3
             if(gamepad2.y)
             {
-                motorLift.setPower(0.3);
+                motorLift.setPower(0.5);
                 level3 = true;
             }
-            if(motorLift.getCurrentPosition()>=6000 && level3){
+            if(motorLift.getCurrentPosition()>=400 && level3){
                 motorLift.setPower(0);
                 level3 = false;
             }
             //Level 0
             if(gamepad2.x)
             {
-                motorLift.setPower(-0.5);
+                motorLift.setPower(-0.3);
                 level0 = true;
             }
             if(motorLift.getCurrentPosition()<=0 && level0){

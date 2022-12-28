@@ -17,6 +17,8 @@ public class Mecanum extends LinearOpMode {
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
 
+        DcMotor motorLift = hardwareMap.dcMotor.get("motorLift");
+
         Servo claw = hardwareMap.servo.get("claw");
 
         // Reverse the right side motors
@@ -27,7 +29,10 @@ public class Mecanum extends LinearOpMode {
         waitForStart();
 
         if (isStopRequested()) return;
-
+        boolean level0 = false;
+        boolean level1 = false;
+        boolean level2 = false;
+        boolean level3 = false;
         while (opModeIsActive()) {
 
             double y = -gamepad1.left_stick_y; // Remember, this is reversed!
@@ -47,16 +52,59 @@ public class Mecanum extends LinearOpMode {
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
+
+            //Level 1
+            if(gamepad2.a)
+            {
+                motorLift.setPower(0.3);
+                level1 = true;
+            }
+            if(motorLift.getCurrentPosition()>=2000 && level1){
+                motorLift.setPower(0);
+                level1 = false;
+            }
+            //Level 2
+            if(gamepad2.b)
+            {
+                motorLift.setPower(0.3);
+                level2 = true;
+            }
+            if(motorLift.getCurrentPosition()>=4000 && level2){
+                motorLift.setPower(0);
+                level2 = false;
+            }
+            //Level 3
+            if(gamepad2.y)
+            {
+                motorLift.setPower(0.3);
+                level3 = true;
+            }
+            if(motorLift.getCurrentPosition()>=6000 && level3){
+                motorLift.setPower(0);
+                level3 = false;
+            }
+            //Level 0
+            if(gamepad2.x)
+            {
+                motorLift.setPower(-0.5);
+                level0 = true;
+            }
+            if(motorLift.getCurrentPosition()<=0 && level0){
+                motorLift.setPower(0);
+                level0 = false;
+            }
+
             //claw code for opening and closing
-            if(gamepad1.left_bumper){
+            if(gamepad1.right_bumper){
                 claw.setPosition(0.75);
-            } else if (gamepad1.right_bumper) {
+            } else if (gamepad1.left_bumper) {
                 claw.setPosition(1);
             }
 
-            telemetry.addData("claw: ", claw.getPosition());
+//            telemetry.addData("claw: ", claw.getPosition());
 //            telemetry.addData("y: ", y);
 //            telemetry.addData("rx: ", rx);
+            telemetry.addData("lift: ", motorLift.getCurrentPosition());
             telemetry.update();
         }
     }

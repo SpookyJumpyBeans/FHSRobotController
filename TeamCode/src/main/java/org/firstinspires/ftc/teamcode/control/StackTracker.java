@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.control;
 
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.teamcode.lib.motion.ResidualVibrationReductionMotionProfilerGenerator;
 
 public class StackTracker {
@@ -9,9 +11,9 @@ public class StackTracker {
     private static final double INITIAL_HEIGHT = 9.0d; //used to be 10.25, changed 12/20
     private static final double FEEDER_DUMPER_HEIGHT = 3.625d; //used to be 3.875, changed 12/21
 
-    private static final double INITIAL_POLE_HEIGHT_DIFFERENCE = 14d; //0, 14, 24, 25 (will become 34)
-    private static final double POLE_HEIGHT_DIFFERENCE = 10d;
-    private static final double MAX_POLE_TARGET_HEIGHT = 25d;
+    private static final double INITIAL_POLE_HEIGHT = 7.25d; //0, 7, 12, 16.75 (will become 18)
+    private static final double POLE_HEIGHT_DIFFERENCE = 5d;
+    private static final double MAX_POLE_TARGET_HEIGHT = 16.75;
     private int POLE_TARGET_TYPE = 0; //0, 1, 2, 3
 
     public StackTracker() {
@@ -104,19 +106,12 @@ public class StackTracker {
                 break;
 
             case 1:
-                returnValue = getInitialPoleHeightDifference();
-                break;
-
             case 2:
             case 3:
-                returnValue = getInitialPoleHeightDifference() + (getPoleTargetType() - 1) * getPoleHeightDifference();
+                returnValue = getInitialPoleHeight() + ((getPoleTargetType() - 1) * getPoleHeightDifference());
+                Range.clip(returnValue, 0d, getMaxPoleTargetHeight());
                 break;
         }
-
-        if (returnValue > getMaxPoleTargetHeight()){
-            returnValue = getMaxPoleTargetHeight();
-        }
-
         return returnValue;
     }
 
@@ -127,17 +122,11 @@ public class StackTracker {
                 break;
 
             case 1:
-                returnValue = getInitialPoleHeightDifference();
-                break;
-
             case 2:
             case 3:
-                returnValue = getInitialPoleHeightDifference() + (poleType- 1) * getPoleHeightDifference();
+                returnValue = getInitialPoleHeight() + ((poleType - 1) * getPoleHeightDifference());
+                Range.clip(returnValue, 0d, getMaxPoleTargetHeight());
                 break;
-        }
-
-        if (returnValue > getMaxPoleTargetHeight()){
-            returnValue = getMaxPoleTargetHeight();
         }
 
         return returnValue;
@@ -187,8 +176,8 @@ public class StackTracker {
         return POLE_HEIGHT_DIFFERENCE;
     }
 
-    public static double getInitialPoleHeightDifference(){
-        return INITIAL_POLE_HEIGHT_DIFFERENCE;
+    public static double getInitialPoleHeight(){
+        return INITIAL_POLE_HEIGHT;
     }
 
     public int getPoleTargetType() {

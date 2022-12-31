@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.states.FeederStateMachine;
         I = 0d,
         D = 0d,
         S = 0.06d,
-        V = 1 / 55d,
+        V = 1 / 2200d,
         A = 0d
 )
 public class Feeder implements ISubsystem<FeederStateMachine, FeederStateMachine.State> {

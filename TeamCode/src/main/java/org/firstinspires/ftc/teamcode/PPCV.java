@@ -12,7 +12,7 @@ import java.util.List;
 
 public class PPCV {
     private int[] viabilityBounds = {700/*bottom*/, 225/*top*/, 200/*left*/, 700/*right*/};
-    private static String TFOD_MODEL_ASSET = "Sleeve_Recognition_V7_Pole_Gear_Battery.tflite";
+    private static String TFOD_MODEL_ASSET = "PowerPlay.tflite";
     private boolean isStopped = true;
     // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
 

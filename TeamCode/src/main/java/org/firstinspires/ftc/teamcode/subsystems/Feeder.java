@@ -246,7 +246,7 @@ public class Feeder implements ISubsystem<FeederStateMachine, FeederStateMachine
                 //Retracting
                 getFeederExtensionStateMachine().updateState(FeederExtensionStateMachine.State.RETRACT);
                 setExtensionProfile(new ResidualVibrationReductionMotionProfilerGenerator(
-                        getLeftExtension().getPosition(), -getLeftExtension().getPosition(), 25d, 50d
+                        getLeftExtension().getPosition(), -getLeftExtension().getPosition(), 12.5d, 25d
                 ));
                 this.setpoint = setpoint;
             }

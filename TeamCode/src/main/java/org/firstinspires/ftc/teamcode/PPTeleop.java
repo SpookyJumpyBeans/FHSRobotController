@@ -86,10 +86,10 @@ public class PPTeleop extends PPTeleopRobot {
 //        }
         //TODO: Replace logic below with the logic above in 91-93
         //Claw
-        if (getEnhancedGamepad2().isLeftBumperJustPressed()) {
+        if (getEnhancedGamepad1().isLeftBumperJustPressed()) {
             Feeder.getFeederConeGripperStateMachine().updateState(FeederConeGripperStateMachine.State.OPEN);
         }
-        if (getEnhancedGamepad2().isRightBumperJustPressed()) {
+        if (getEnhancedGamepad1().isRightBumperJustPressed()) {
             Feeder.getFeederConeGripperStateMachine().updateState(FeederConeGripperStateMachine.State.CLOSE);
         }
 

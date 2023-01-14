@@ -165,7 +165,7 @@ public class BlueLeft extends LinearOpMode {
 
                     if (waitTimer.milliseconds() > 3000 && AprilTag != 0){
                         ppapriltags.close();
-                        currentState = State.PARK;
+                        currentState = State.FORWARD;
                     }
                     break;
                 case CLAWCLOSE:
@@ -202,7 +202,7 @@ public class BlueLeft extends LinearOpMode {
                 case FORWARD:
                     if (waitTimer.milliseconds() >= 2000) {
                         drive.followTrajectorySequenceAsync(traj1);
-                        currentState = State.PRELOAD;
+                        currentState = State.PARK;
                         waitTimer.reset();
                     }
                     break;
@@ -279,19 +279,19 @@ public class BlueLeft extends LinearOpMode {
 
                 case PARK:
                     telemetry.addData("placement: ", placement);
-//                    if(waitTimer.milliseconds() >= 2000){
-//                        if(placement == "ONE"){
-//                            drive.followTrajectorySequenceAsync(location1);
-//                        }
-//                        else if(placement == "TWO"){
-//                            drive.followTrajectorySequenceAsync(location2);
-//                        }
-//                        else if(placement == "THREE"){
-//                            drive.followTrajectorySequenceAsync(location3);
-//                        }
-//                        currentState = State.IDLE;
-//                        waitTimer.reset();
-//                    }
+                    if(waitTimer.milliseconds() >= 2000){
+                        if(placement == "ONE"){
+                            drive.followTrajectorySequenceAsync(location1);
+                        }
+                        else if(placement == "TWO"){
+                            drive.followTrajectorySequenceAsync(location2);
+                        }
+                        else if(placement == "THREE"){
+                            drive.followTrajectorySequenceAsync(location3);
+                        }
+                        currentState = BlueLeft.State.IDLE;
+                        waitTimer.reset();
+                    }
                     break;
 
                 case IDLE:

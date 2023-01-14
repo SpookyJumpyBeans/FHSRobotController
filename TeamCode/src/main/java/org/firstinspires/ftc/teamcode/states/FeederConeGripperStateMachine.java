@@ -20,7 +20,7 @@ public class FeederConeGripperStateMachine extends TimedState<FeederConeGripperS
     }
 
     public enum State implements Namable {
-        OPEN("Open",1d), CLOSE("Close", 0.75d);
+        OPEN("Open",0.95d), CLOSE("Close", 0.70d);
 
         private final String name;
         private final double Position;

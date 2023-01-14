@@ -6,30 +6,29 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.teamcode.PPAprilTags;
 import org.firstinspires.ftc.teamcode.lib.util.TimeProfiler;
 import org.firstinspires.ftc.teamcode.lib.util.TimeUnits;
-import org.firstinspires.ftc.teamcode.PPCV;
-//import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.odometry.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.states.FeederExtensionStateMachine;
-import org.firstinspires.ftc.teamcode.states.FeederStateMachine;
-import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 
+//import org.firstinspires.ftc.teamcode.team10515.states.ArmStateMachine;
+//import org.firstinspires.ftc.teamcode.team10515.states.ClawStateMachine;
+//import org.firstinspires.ftc.teamcode.team10515.states.LiftStateMachine;
 
-@Autonomous(name = "Blue Left FTCCV", group = "XtremeV")
-public class BlueLeftFTCCV extends LinearOpMode {
+@Autonomous(name = "Red Right", group = "RoarBotics")
+public class RedRight extends LinearOpMode {
     PPBase drive;
     private static double dt;
     private static TimeProfiler updateRuntime;
 
-    static final Vector2d Traj0 = new Vector2d(34,65.5);
-    static final Vector2d Traj1 = new Vector2d(34, 12);
-    static final Vector2d Traj2 = new Vector2d(20.5,12.5);
-    static final Vector2d Traj3 = new Vector2d(54, 13);
-    static final Vector2d Location1 = new Vector2d(50, 12);
-    static final Vector2d Location2 = new Vector2d(34, 12);
-    static final Vector2d Location3 = new Vector2d(12,12);
+    static final Vector2d Traj0 = new Vector2d(36.0,-63.5);
+    static final Vector2d Traj1 = new Vector2d(36.0, -10.0);
+    static final Vector2d Traj2 = new Vector2d(29.25,-10.0);
+    static final Vector2d Traj3 = new Vector2d(60.5, -17);
+    static final Vector2d Traj4 = new Vector2d(52, -13.5);
+    static final Vector2d Location1 = new Vector2d(55, -13);
+    static final Vector2d Location2 = new Vector2d(36, -13);
+    static final Vector2d Location3 = new Vector2d(14,-13);
 
     //ElapsedTime carouselTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     ElapsedTime waitTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -63,10 +62,8 @@ public class BlueLeftFTCCV extends LinearOpMode {
     private static final double LOW = 14d;
 
 
-    PPCV ppcv;
-    boolean hasCVInit = false;
-    String placement = "ONE";
-    float confidence = 0;
+    PPAprilTags ppapriltags;
+    String placement = "NONE";
 
     boolean tf = false;
 
@@ -77,7 +74,9 @@ public class BlueLeftFTCCV extends LinearOpMode {
 
         drive = new PPBase(hardwareMap);
         drive.setPoseEstimate(startPose);
-
+        //drive.robot.getLiftSubsystem().getStateMachine().updateState(LiftStateMachine.State.IDLE);
+        //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.OPEN);
+        //drive.robot.getArmSubsystem().getStateMachine().updateState(ArmStateMachine.State.INIT);
         //drive.robot.getCappingArmSubsystem().getStateMachine().updateState(ArmStateMachine.State.REST);
 
         TrajectorySequence traj0 = drive.trajectorySequenceBuilder(startPose)
@@ -115,33 +114,26 @@ public class BlueLeftFTCCV extends LinearOpMode {
 
         drive.getExpansionHubs().update(getDt());
 
+        //drive.robot.getLiftSubsystem().update(getDt());
+        //drive.robot.getArmSubsystem().update(getDt());
+        //drive.robot.getClawSubsystem().update(getDt());
+
         double t1 = waitTimer.milliseconds();
 
-        ppcv = new PPCV();
-        ppcv.initVuforia(hardwareMap);
-        ppcv.initTfod(hardwareMap);
-
-//        ppcv.setModel("XV");
-        ppcv.setModel("FTC");
+        ppapriltags = new PPAprilTags();
+        ppapriltags.init(hardwareMap);
 
         double t2 = waitTimer.milliseconds();
 
         telemetry.addData("Initialize Time Seconds", (t2 - t1));
-        telemetry.addData("STOP?: ", ppcv.isStopped());
         telemetry.update();
 
-        int detectCounter = 0;
-        double confidence = 0;
-        String label = "NONE";
-        Recognition oldRecog = null;
-        Recognition recog;
+        int AprilTag = 0;
 
         telemetry.update();
         waitForStart();
 
         if (isStopRequested()) return;
-
-
 
         currentState = State.WAIT0;
 
@@ -153,33 +145,32 @@ public class BlueLeftFTCCV extends LinearOpMode {
 
                 case WAIT0:
                     telemetry.addLine("in the wait0 state");
-                    recog = ppcv.detect();
-                    detectCounter++;
-                    if (recog != null){
-                        if(oldRecog != null) {
-                            if (ppcv.choose(recog, oldRecog) == recog){
-                                confidence = recog.getConfidence();
-                                label = recog.getLabel();
-                                oldRecog = recog;
-                            }
-                        }
-                        else{
-                            oldRecog = recog;
+                    AprilTag = ppapriltags.getDetectedTag();
+                    if (AprilTag != 0){
+                        switch (AprilTag)
+                        {
+                            case 2:
+                                placement = "ONE";
+                                break;
+                            case 3:
+                                placement = "TWO";
+                                break;
+                            case 4:
+                                placement = "THREE";
+                                break;
                         }
                     }
                     else {
-                        telemetry.addLine("NULL");
+                        telemetry.addLine("April Tag not found.");
                     }
-                    if (waitTimer.milliseconds() > 3000 && confidence > 0.01){
-                        currentState = State.CLAWCLOSE;
-                        ppcv.stop();
-                        placement = label;
+
+                    if (waitTimer.milliseconds() > 3000 && AprilTag != 0){
+                        ppapriltags.close();
+                        currentState = State.PARK;
                     }
                     break;
                 case CLAWCLOSE:
-                    telemetry.addData("Label: ", label);
-                    telemetry.addData("Confidence: ", confidence);
-                    telemetry.addData("#: ", detectCounter);
+                    telemetry.addData("placement: ", placement);
                     if(waitTimer.milliseconds() >= 1000){
                         //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.CLOSE);
                         currentState = State.INITSTRAFE;
@@ -197,7 +188,7 @@ public class BlueLeftFTCCV extends LinearOpMode {
 
                 case LIFTUP:
                     if(!drive.isBusy() && waitTimer.milliseconds() >= 750){
-                        //drive.robot.getFeeder().getLeftExtension().extend(MID);
+                        //drive.robot.getLiftSubsystem().extend(MID);
                         if(tf){
                             currentState = State.TODROP;
                         }
@@ -251,14 +242,7 @@ public class BlueLeftFTCCV extends LinearOpMode {
 
                 case LIFTDOWN:
                     if(waitTimer.milliseconds() >= 1000){
-//                        if(counter < 1) {
-//                            drive.robot.getLiftSubsystem().extend(6d);
-//                            currentState = State.TOSTACK;
-//                        }
-//                        else{
-                            //drive.robot.getLiftSubsystem().retract();
-                            currentState = State.PARK;
-                       // }
+                        currentState = State.PARK;
                         waitTimer.reset();
                     }
                     break;
@@ -295,23 +279,25 @@ public class BlueLeftFTCCV extends LinearOpMode {
                     break;
 
                 case PARK:
-                    if(waitTimer.milliseconds() >= 2000){
-                        if(placement == "ONE"){
-                            drive.followTrajectorySequenceAsync(location1);
-                        }
-                        else if(placement == "TWO"){
-                            drive.followTrajectorySequenceAsync(location2);
-                        }
-                        else if(placement == "THREE"){
-                            drive.followTrajectorySequenceAsync(location3);
-                        }
-                        currentState = State.IDLE;
-                        waitTimer.reset();
-                    }
+                    telemetry.addData("placement: ", placement);
+//                    if(waitTimer.milliseconds() >= 2000){
+//                        if(placement == "ONE"){
+//                            drive.followTrajectorySequenceAsync(location1);
+//                        }
+//                        else if(placement == "TWO"){
+//                            drive.followTrajectorySequenceAsync(location2);
+//                        }
+//                        else if(placement == "THREE"){
+//                            drive.followTrajectorySequenceAsync(location3);
+//                        }
+//                        currentState = State.IDLE;
+//                        waitTimer.reset();
+//                    }
                     break;
 
                 case IDLE:
                     //PoseStorage.currentPose = drive.getPoseEstimate();
+                    //PoseStorage.forBlue = true;
                     break;
             }
 

@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.PPAprilTags;
 import org.firstinspires.ftc.teamcode.lib.util.TimeProfiler;
 import org.firstinspires.ftc.teamcode.lib.util.TimeUnits;
 import org.firstinspires.ftc.teamcode.odometry.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.states.FeederConeGripperStateMachine;
 
 //import org.firstinspires.ftc.teamcode.team10515.states.ArmStateMachine;
 //import org.firstinspires.ftc.teamcode.team10515.states.ClawStateMachine;
@@ -30,7 +31,6 @@ public class RedLeft extends LinearOpMode {
     static final Vector2d Location3 = new Vector2d(-12,-13);
 
     //ElapsedTime carouselTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-    ElapsedTime waitTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
     enum State {
         WAIT0,
@@ -52,6 +52,8 @@ public class RedLeft extends LinearOpMode {
 
     State currentState = State.IDLE;
 
+    //ElapsedTime carouselTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    ElapsedTime waitTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     Pose2d startPose = new Pose2d(31, 65.5, Math.toRadians(-90));
 
 
@@ -171,8 +173,8 @@ public class RedLeft extends LinearOpMode {
                 case CLAWCLOSE:
                     telemetry.addData("placement: ", placement);
                     if(waitTimer.milliseconds() >= 1000){
-                        //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.CLOSE);
-                        currentState = State.INITSTRAFE;
+                        drive.robot.getFeeder().getFeederConeGripperStateMachine().updateState(FeederConeGripperStateMachine.State.CLOSE);
+                        currentState = State.LIFTUP;
                         waitTimer.reset();
                     }
                     break;
@@ -180,21 +182,24 @@ public class RedLeft extends LinearOpMode {
                 case INITSTRAFE:
                     if(waitTimer.milliseconds() >= 1000){
                         drive.followTrajectorySequenceAsync(traj0);
-                        currentState = State.LIFTUP;
+                        currentState = State.CLAWOPEN;
                         waitTimer.reset();
                     }
                     break;
 
                 case LIFTUP:
                     if(!drive.isBusy() && waitTimer.milliseconds() >= 750){
-                        //drive.robot.getLiftSubsystem().extend(MID);
-                        if(tf){
-                            currentState = State.TODROP;
-                        }
-                        else {
-                            currentState = State.FORWARD;
-                            tf = true;
-                        }
+                        //you need to add a line of code to set the extn height on the stack tracker
+                        drive.robot.getStackTracker().setPoleTargetType(1);
+                        drive.robot.getFeeder().extendPoles();
+//                        if(tf){
+//                            currentState = State.TODROP;
+//                        }
+//                        else {
+//
+//                            tf = true;
+//                        }
+                        currentState = State.TODROP;
                         waitTimer.reset();
                     }
                     break;
@@ -225,8 +230,8 @@ public class RedLeft extends LinearOpMode {
 
                 case CLAWOPEN:
                     if(waitTimer.milliseconds() >= 1000){
-                        //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.OPEN);
-                        currentState = State.MOVEARMBACK;
+                        drive.robot.getFeeder().getFeederConeGripperStateMachine().updateState(FeederConeGripperStateMachine.State.OPEN);
+                        currentState = State.LIFTDOWN;
                         waitTimer.reset();
                     }
                     break;
@@ -240,7 +245,9 @@ public class RedLeft extends LinearOpMode {
                     break;
 
                 case LIFTDOWN:
-                    if(waitTimer.milliseconds() >= 1000){
+                    drive.robot.getStackTracker().setPoleTargetType(0);
+                    drive.robot.getFeeder().retract();
+                    if(waitTimer.milliseconds() >= 2500){
                         currentState = State.PARK;
                         waitTimer.reset();
                     }
@@ -265,15 +272,16 @@ public class RedLeft extends LinearOpMode {
                 case TODROP:
                     if(waitTimer.milliseconds() >= 2000){
                         drive.followTrajectorySequenceAsync(traj4);
-                        if(counter < 1){
-                            currentState = State.MOVEARM;
-                            waitTimer.reset();
-                            counter++;
-                        }
-                        else {
-                            currentState = State.LIFTDOWN;
-                            waitTimer.reset();
-                        }
+                        currentState = State.CLAWOPEN;
+//                        if(counter < 1){
+//                            currentState = State.MOVEARM;
+//                            waitTimer.reset();
+//                            counter++;
+//                        }
+//                        else {
+//                            currentState = State.CLAWOPEN;
+//                            waitTimer.reset();
+//                        }
                     }
                     break;
 
@@ -289,7 +297,7 @@ public class RedLeft extends LinearOpMode {
                         else if(placement == "THREE"){
                             drive.followTrajectorySequenceAsync(location3);
                         }
-                        currentState = RedLeft.State.IDLE;
+                        currentState = State.IDLE;
                         waitTimer.reset();
                     }
                     break;

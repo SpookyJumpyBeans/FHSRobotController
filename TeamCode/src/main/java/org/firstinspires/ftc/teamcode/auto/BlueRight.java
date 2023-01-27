@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.PPAprilTags;
 import org.firstinspires.ftc.teamcode.lib.util.TimeProfiler;
 import org.firstinspires.ftc.teamcode.lib.util.TimeUnits;
 import org.firstinspires.ftc.teamcode.odometry.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.states.FeederConeGripperStateMachine;
 
 //import org.firstinspires.ftc.teamcode.team10515.states.ArmStateMachine;
 //import org.firstinspires.ftc.teamcode.team10515.states.ClawStateMachine;
@@ -50,7 +51,7 @@ public class BlueRight extends LinearOpMode {
         GRAB
     }
 
-    State currentState = State.IDLE;
+    BlueLeft.State currentState = BlueLeft.State.IDLE;
 
     Pose2d startPose = new Pose2d(31, 65.5, Math.toRadians(-90));
 
@@ -113,7 +114,7 @@ public class BlueRight extends LinearOpMode {
 
         drive.getExpansionHubs().update(getDt());
 
-        //drive.robot.getLiftSubsystem().update(getDt());
+        //drive.robot.getLiftSubsystem().up date(getDt());
         //drive.robot.getArmSubsystem().update(getDt());
         //drive.robot.getClawSubsystem().update(getDt());
 
@@ -134,7 +135,7 @@ public class BlueRight extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        currentState = State.WAIT0;
+        currentState = BlueLeft.State.WAIT0;
 
         while (opModeIsActive() && !isStopRequested()) {
 
@@ -165,14 +166,14 @@ public class BlueRight extends LinearOpMode {
 
                     if (waitTimer.milliseconds() > 3000 && AprilTag != 0){
                         ppapriltags.close();
-                        currentState = State.FORWARD;
+                        currentState = BlueLeft.State.FORWARD;
                     }
                     break;
                 case CLAWCLOSE:
                     telemetry.addData("placement: ", placement);
                     if(waitTimer.milliseconds() >= 1000){
-                        //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.CLOSE);
-                        currentState = State.INITSTRAFE;
+                        drive.robot.getFeeder().getFeederConeGripperStateMachine().updateState(FeederConeGripperStateMachine.State.CLOSE);
+                        currentState = BlueLeft.State.LIFTUP;
                         waitTimer.reset();
                     }
                     break;
@@ -180,21 +181,24 @@ public class BlueRight extends LinearOpMode {
                 case INITSTRAFE:
                     if(waitTimer.milliseconds() >= 1000){
                         drive.followTrajectorySequenceAsync(traj0);
-                        currentState = State.LIFTUP;
+                        currentState = BlueLeft.State.CLAWOPEN;
                         waitTimer.reset();
                     }
                     break;
 
                 case LIFTUP:
                     if(!drive.isBusy() && waitTimer.milliseconds() >= 750){
-                        //drive.robot.getLiftSubsystem().extend(MID);
-                        if(tf){
-                            currentState = State.TODROP;
-                        }
-                        else {
-                            currentState = State.FORWARD;
-                            tf = true;
-                        }
+                        //you need to add a line of code to set the extn height on the stack tracker
+                        drive.robot.getStackTracker().setPoleTargetType(2);
+                        drive.robot.getFeeder().extendPoles();
+//                        if(tf){
+//                            currentState = State.TODROP;
+//                        }
+//                        else {
+//
+//                            tf = true;
+//                        }
+                        currentState = BlueLeft.State.TODROP;
                         waitTimer.reset();
                     }
                     break;
@@ -202,7 +206,7 @@ public class BlueRight extends LinearOpMode {
                 case FORWARD:
                     if (waitTimer.milliseconds() >= 2000) {
                         drive.followTrajectorySequenceAsync(traj1);
-                        currentState = State.PARK;
+                        currentState = BlueLeft.State.PARK;
                         waitTimer.reset();
                     }
                     break;
@@ -210,7 +214,7 @@ public class BlueRight extends LinearOpMode {
                 case PRELOAD:
                     if(!drive.isBusy()){
                         drive.followTrajectorySequenceAsync(traj2);
-                        currentState = State.MOVEARM;
+                        currentState = BlueLeft.State.MOVEARM;
                         waitTimer.reset();
                     }
                     break;
@@ -218,15 +222,15 @@ public class BlueRight extends LinearOpMode {
                 case MOVEARM:
                     if(!drive.isBusy()){
                         //drive.robot.getArmSubsystem().getStateMachine().updateState(ArmStateMachine.State.RIGHT);
-                        currentState = State.CLAWOPEN;
+                        currentState = BlueLeft.State.CLAWOPEN;
                         waitTimer.reset();
                     }
                     break;
 
                 case CLAWOPEN:
                     if(waitTimer.milliseconds() >= 1000){
-                        //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.OPEN);
-                        currentState = State.MOVEARMBACK;
+                        drive.robot.getFeeder().getFeederConeGripperStateMachine().updateState(FeederConeGripperStateMachine.State.OPEN);
+                        currentState = BlueLeft.State.FORWARD;
                         waitTimer.reset();
                     }
                     break;
@@ -234,14 +238,15 @@ public class BlueRight extends LinearOpMode {
                 case MOVEARMBACK:
                     if(waitTimer.milliseconds() >= 1000){
                         //drive.robot.getArmSubsystem().getStateMachine().updateState(ArmStateMachine.State.INIT);
-                        currentState = State.LIFTDOWN;
+                        currentState = BlueLeft.State.LIFTDOWN;
                         waitTimer.reset();
                     }
                     break;
 
                 case LIFTDOWN:
+                    drive.robot.getFeeder().retract();
                     if(waitTimer.milliseconds() >= 1000){
-                        currentState = State.PARK;
+                        currentState = BlueLeft.State.PARK;
                         waitTimer.reset();
                     }
                     break;
@@ -249,7 +254,7 @@ public class BlueRight extends LinearOpMode {
                 case TOSTACK:
                     if(waitTimer.milliseconds() >= 2000){
                         drive.followTrajectorySequenceAsync(traj3);
-                        currentState = State.GRAB;
+                        currentState = BlueLeft.State.GRAB;
                         waitTimer.reset();
                     }
                     break;
@@ -257,7 +262,7 @@ public class BlueRight extends LinearOpMode {
                 case GRAB:
                     if(!drive.isBusy()){
                         //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.CLOSE);
-                        currentState = State.LIFTUP;
+                        currentState = BlueLeft.State.LIFTUP;
                         waitTimer.reset();
                     }
                     break;
@@ -265,15 +270,16 @@ public class BlueRight extends LinearOpMode {
                 case TODROP:
                     if(waitTimer.milliseconds() >= 2000){
                         drive.followTrajectorySequenceAsync(traj4);
-                        if(counter < 1){
-                            currentState = State.MOVEARM;
-                            waitTimer.reset();
-                            counter++;
-                        }
-                        else {
-                            currentState = State.LIFTDOWN;
-                            waitTimer.reset();
-                        }
+                        currentState = BlueLeft.State.CLAWOPEN;
+//                        if(counter < 1){
+//                            currentState = BlueLeft.State.MOVEARM;
+//                            waitTimer.reset();
+//                            counter++;
+//                        }
+//                        else {
+//                            currentState = BlueLeft.State.CLAWOPEN;
+//                            waitTimer.reset();
+//                        }
                     }
                     break;
 
@@ -289,7 +295,7 @@ public class BlueRight extends LinearOpMode {
                         else if(placement == "THREE"){
                             drive.followTrajectorySequenceAsync(location3);
                         }
-                        currentState = BlueRight.State.IDLE;
+                        currentState = BlueLeft.State.IDLE;
                         waitTimer.reset();
                     }
                     break;

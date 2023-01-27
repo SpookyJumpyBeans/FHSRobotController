@@ -124,7 +124,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);

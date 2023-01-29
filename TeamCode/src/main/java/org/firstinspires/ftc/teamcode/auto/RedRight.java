@@ -6,79 +6,56 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.PPAprilTags;
 import org.firstinspires.ftc.teamcode.lib.util.TimeProfiler;
 import org.firstinspires.ftc.teamcode.lib.util.TimeUnits;
+import org.firstinspires.ftc.teamcode.PPAprilTags;
 import org.firstinspires.ftc.teamcode.odometry.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.states.FeederConeGripperStateMachine;
+import org.firstinspires.ftc.teamcode.states.FeederExtensionStateMachine;
 
-//import org.firstinspires.ftc.teamcode.team10515.states.ArmStateMachine;
-//import org.firstinspires.ftc.teamcode.team10515.states.ClawStateMachine;
-//import org.firstinspires.ftc.teamcode.team10515.states.LiftStateMachine;
-
-@Autonomous(name = "Red Right", group = "RoarBotics")
+@Autonomous(name = "Right", group = "RoarBotics")
 public class RedRight extends LinearOpMode {
     PPBase drive;
     private static double dt;
     private static TimeProfiler updateRuntime;
 
-    static final Vector2d Traj0 = new Vector2d(36.0,-63.5);
-    static final Vector2d Traj1 = new Vector2d(36.0, -10.0);
-    static final Vector2d Traj2 = new Vector2d(29.25,-10.0);
-    static final Vector2d Traj3 = new Vector2d(60.5, -17);
-    static final Vector2d Traj4 = new Vector2d(52, -13.5);
-    static final Vector2d Location1 = new Vector2d(55, -13);
-    static final Vector2d Location2 = new Vector2d(36, -13);
-    static final Vector2d Location3 = new Vector2d(14,-13);
-
-    //ElapsedTime carouselTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-    ElapsedTime waitTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    static final Vector2d Traj0 = new Vector2d(30,25.5); //forward to pole
+    static final Vector2d Traj1 = new Vector2d(34, 25.5); //strafe left to pole
+    static final Vector2d Traj2 = new Vector2d(30,25.5); //strafe right to middle
+    static final Vector2d Traj3 = new Vector2d(30, 38); //BACK
+    static final Vector2d Location1 = new Vector2d(55, 38);
+    //static final Vector2d Location2 = new Vector2d(30.5, 38);
+    static final Vector2d Location3 = new Vector2d(5,38);
 
     enum State {
         WAIT0,
         CLAWCLOSE,
-        INITSTRAFE,
+        STRAFELEFT,
         LIFTUP,
         FORWARD,
-        PRELOAD,
+        BACK1,
         MOVEARM,
         CLAWOPEN,
-        MOVEARMBACK,
+        STRAFERIGHT,
         LIFTDOWN,
-        TODROP,
         TOSTACK,
         IDLE,
         PARK,
-        GRAB
+        GRAB;
     }
 
     State currentState = State.IDLE;
-
-    Pose2d startPose = new Pose2d(31, 65.5, Math.toRadians(-90));
-
-
-    //these are based on LiftTest
-    private static final double HIGH = 24d;
-    private static final double MID = 23.5d;
-    private static final double LOW = 14d;
-
+    ElapsedTime waitTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    Pose2d startPose = new Pose2d(30, 65, Math.toRadians(-90));
 
     PPAprilTags ppapriltags;
     String placement = "NONE";
-
-    boolean tf = false;
-
-    int counter = 0;
 
     public void runOpMode() throws InterruptedException {
         setUpdateRuntime(new TimeProfiler(false));
 
         drive = new PPBase(hardwareMap);
         drive.setPoseEstimate(startPose);
-        //drive.robot.getLiftSubsystem().getStateMachine().updateState(LiftStateMachine.State.IDLE);
-        //drive.robot.getClawSubsystem().getStateMachine().updateState(ClawStateMachine.State.OPEN);
-        //drive.robot.getArmSubsystem().getStateMachine().updateState(ArmStateMachine.State.INIT);
-        //drive.robot.getCappingArmSubsystem().getStateMachine().updateState(ArmStateMachine.State.REST);
 
         TrajectorySequence traj0 = drive.trajectorySequenceBuilder(startPose)
                 .lineTo(Traj0)
@@ -86,7 +63,6 @@ public class RedRight extends LinearOpMode {
 
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(traj0.end())
                 .lineTo(Traj1)
-                .turn(Math.toRadians(93.5))
                 .build();
 
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
@@ -97,27 +73,20 @@ public class RedRight extends LinearOpMode {
                 .lineTo(Traj3)
                 .build();
 
-        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineTo(Traj2)
-                .build();
-
-        TrajectorySequence location1 = drive.trajectorySequenceBuilder(traj4.end())
+        TrajectorySequence location1 = drive.trajectorySequenceBuilder(traj3.end())
                 .lineTo(Location1)
                 .build();
 
-        TrajectorySequence location2 = drive.trajectorySequenceBuilder(traj4.end())
-                .lineTo(Location2)
-                .build();
+//        TrajectorySequence location2 = drive.trajectorySequenceBuilder(traj3.end())
+//                .lineTo(Location2)
+//                .build();
 
-        TrajectorySequence location3 = drive.trajectorySequenceBuilder(traj4.end())
+        TrajectorySequence location3 = drive.trajectorySequenceBuilder(traj3.end())
                 .lineTo(Location3)
                 .build();
 
         drive.getExpansionHubs().update(getDt());
-
-        //drive.robot.getLiftSubsystem().up date(getDt());
-        //drive.robot.getArmSubsystem().update(getDt());
-        //drive.robot.getClawSubsystem().update(getDt());
+        drive.robot.getFeeder().update(getDt());
 
         double t1 = waitTimer.milliseconds();
 
@@ -137,6 +106,7 @@ public class RedRight extends LinearOpMode {
         if (isStopRequested()) return;
 
         currentState = State.WAIT0;
+        waitTimer.reset();
 
         while (opModeIsActive() && !isStopRequested()) {
 
@@ -166,8 +136,10 @@ public class RedRight extends LinearOpMode {
                     }
 
                     if (waitTimer.milliseconds() > 3000 && AprilTag != 0){
+                        telemetry.addLine("April Tag found: " + placement);
                         ppapriltags.close();
-                        currentState = State.FORWARD;
+                        currentState = State.CLAWCLOSE;
+                        waitTimer.reset();
                     }
                     break;
                 case CLAWCLOSE:
@@ -179,43 +151,37 @@ public class RedRight extends LinearOpMode {
                     }
                     break;
 
-                case INITSTRAFE:
-                    if(waitTimer.milliseconds() >= 1000){
-                        drive.followTrajectorySequenceAsync(traj0);
+                case STRAFELEFT:
+                    if(!drive.isBusy()){
+                        drive.followTrajectorySequenceAsync(traj1);
                         currentState = State.CLAWOPEN;
                         waitTimer.reset();
                     }
                     break;
 
                 case LIFTUP:
-                    if(!drive.isBusy() && waitTimer.milliseconds() >= 750){
+                    if(!drive.isBusy() && waitTimer.milliseconds() >= 1000){
                         //you need to add a line of code to set the extn height on the stack tracker
-                        drive.robot.getStackTracker().setPoleTargetType(1);
+                        drive.robot.getStackTracker().setPoleTargetType(2);
                         drive.robot.getFeeder().extendPoles();
-//                        if(tf){
-//                            currentState = State.TODROP;
-//                        }
-//                        else {
-//
-//                            tf = true;
-//                        }
-                        currentState = State.TODROP;
+
+                        currentState = State.FORWARD;
                         waitTimer.reset();
                     }
                     break;
 
                 case FORWARD:
                     if (waitTimer.milliseconds() >= 2000) {
-                        drive.followTrajectorySequenceAsync(traj1);
-                        currentState = State.PARK;
+                        drive.followTrajectorySequenceAsync(traj0);
+                        currentState = State.STRAFELEFT;
                         waitTimer.reset();
                     }
                     break;
 
-                case PRELOAD:
+                case BACK1:
                     if(!drive.isBusy()){
-                        drive.followTrajectorySequenceAsync(traj2);
-                        currentState = State.MOVEARM;
+                        drive.followTrajectorySequenceAsync(traj3);
+                        currentState = State.PARK;
                         waitTimer.reset();
                     }
                     break;
@@ -231,23 +197,24 @@ public class RedRight extends LinearOpMode {
                 case CLAWOPEN:
                     if(waitTimer.milliseconds() >= 1000){
                         drive.robot.getFeeder().getFeederConeGripperStateMachine().updateState(FeederConeGripperStateMachine.State.OPEN);
-                        currentState = State.LIFTDOWN;
+                        currentState = State.STRAFERIGHT;
                         waitTimer.reset();
                     }
                     break;
 
-                case MOVEARMBACK:
+                case STRAFERIGHT:
                     if(waitTimer.milliseconds() >= 1000){
-                        //drive.robot.getArmSubsystem().getStateMachine().updateState(ArmStateMachine.State.INIT);
+                        drive.followTrajectorySequenceAsync(traj2);
                         currentState = State.LIFTDOWN;
                         waitTimer.reset();
                     }
                     break;
 
                 case LIFTDOWN:
-                    drive.robot.getFeeder().retract();
-                    if(waitTimer.milliseconds() >= 1000){
-                        currentState = State.PARK;
+                    if(waitTimer.milliseconds() >= 2000){
+                        drive.robot.getStackTracker().setPoleTargetType(0);
+                        drive.robot.getFeeder().retract();
+                        currentState = State.BACK1;
                         waitTimer.reset();
                     }
                     break;
@@ -268,22 +235,6 @@ public class RedRight extends LinearOpMode {
                     }
                     break;
 
-                case TODROP:
-                    if(waitTimer.milliseconds() >= 2000){
-                        drive.followTrajectorySequenceAsync(traj4);
-                        currentState = State.CLAWOPEN;
-//                        if(counter < 1){
-//                            currentState = State.MOVEARM;
-//                            waitTimer.reset();
-//                            counter++;
-//                        }
-//                        else {
-//
-//                            waitTimer.reset();
-//                        }
-                    }
-                    break;
-
                 case PARK:
                     telemetry.addData("placement: ", placement);
                     if(waitTimer.milliseconds() >= 2000){
@@ -291,12 +242,12 @@ public class RedRight extends LinearOpMode {
                             drive.followTrajectorySequenceAsync(location1);
                         }
                         else if(placement == "TWO"){
-                            drive.followTrajectorySequenceAsync(location2);
+                            //drive.followTrajectorySequenceAsync(location2);
                         }
                         else if(placement == "THREE"){
                             drive.followTrajectorySequenceAsync(location3);
                         }
-                        currentState = State.IDLE;
+                        currentState = RedRight.State.IDLE;
                         waitTimer.reset();
                     }
                     break;
@@ -309,12 +260,10 @@ public class RedRight extends LinearOpMode {
 
 
             drive.update();
-
             //The following code ensure state machine updates i.e. parallel execution with drivetrain
             drive.getExpansionHubs().update(getDt());
-            //drive.robot.getLiftSubsystem().update(getDt());
-            //drive.robot.getArmSubsystem().update(getDt());
-            //drive.robot.getClawSubsystem().update(getDt());
+            drive.robot.getFeeder().update(getDt());
+
             telemetry.update();
         }
 

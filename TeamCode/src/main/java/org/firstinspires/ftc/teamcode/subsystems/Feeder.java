@@ -37,8 +37,8 @@ import org.firstinspires.ftc.teamcode.states.FeederStateMachine;
         A = 0d
 )
 public class Feeder implements ISubsystem<FeederStateMachine, FeederStateMachine.State> {
-    private static final Time CONE_IN_ROBOT_TIME_THRESHOLD = new Time(0.5d, TimeUnits.SECONDS);
-    private static final double CONE_IN_ROBOT_DISTANCE_THRESHOLD = 2.5d;
+   // private static final Time CONE_IN_ROBOT_TIME_THRESHOLD = new Time(0.5d, TimeUnits.SECONDS);
+    //private static final double CONE_IN_ROBOT_DISTANCE_THRESHOLD = 2.5d;
     private static final ControlConstants EXTEND_CONTROL_CONSTANTS;
     private static final ControlConstants RETRACT_CONTROL_CONSTANTS;
 
@@ -185,6 +185,12 @@ public class Feeder implements ISubsystem<FeederStateMachine, FeederStateMachine
         setDesiredSetpoint(0d);
     }
 
+    public void retractFail() {
+        resetRunningSum();
+        setSetpoint(-2d, false);
+        setDesiredSetpoint(0d);
+    }
+
     public boolean closeToSetpoint(double threshold) {
         return Math.abs(getSetpoint() - getLeftExtension().getPosition()) <= threshold;
     }
@@ -306,12 +312,12 @@ public class Feeder implements ISubsystem<FeederStateMachine, FeederStateMachine
     public static void setDesiredSetpoint(double desiredSetpoint) {
         Feeder.desiredSetpoint = desiredSetpoint;
     }
-    public static Time getConeInRobotTimeThreshold() {
-        return CONE_IN_ROBOT_TIME_THRESHOLD;
-    }
+    //public static Time getConeInRobotTimeThreshold() {
+    //    return CONE_IN_ROBOT_TIME_THRESHOLD;
+    //}
 
-    public static double getConeInRobotDistanceThreshold() {
-        return CONE_IN_ROBOT_DISTANCE_THRESHOLD;
-    }
+    //public static double getConeInRobotDistanceThreshold() {
+    //    return CONE_IN_ROBOT_DISTANCE_THRESHOLD;
+    //}
 
 }

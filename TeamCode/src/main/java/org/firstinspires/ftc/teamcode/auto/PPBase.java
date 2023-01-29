@@ -37,6 +37,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -70,12 +71,12 @@ public class PPBase extends MecanumDrive {
     public PPAutoRobot robot = new PPAutoRobot();
     private PPExpansionHubs expansionHubs;
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
     //    public static double LATERAL_MULTIPLIER = 1; //1.36202669572, 1.39460288683, 1.3361838589
 //    public static double LATERAL_MULTIPLIER = 60.0/77.0;
-    public static double LATERAL_MULTIPLIER = 1.49514893317; //12/9
+    public static double LATERAL_MULTIPLIER = 1; //12/9
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -176,19 +177,26 @@ public class PPBase extends MecanumDrive {
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         setExpansionHubs(new PPExpansionHubs(robot,
                 hardwareMap.get(ExpansionHubEx.class, "Control Hub"),
-                hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1"))
+                hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2"))
         );
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "motorFrontLeft");
-        leftRear = hardwareMap.get(DcMotorEx.class, "motorBackLeft");
-        rightRear = hardwareMap.get(DcMotorEx.class, "motorBackRight");
-        rightFront = hardwareMap.get(DcMotorEx.class, "motorFrontRight");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+
+        // Reverse the right side motors
+        // Reverse left motors if you are using NeveRests
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
-            motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+            motorConfigurationType.setAchieveableMaxRPMFraction(0.9);
             motor.setMotorType(motorConfigurationType);
         }
 

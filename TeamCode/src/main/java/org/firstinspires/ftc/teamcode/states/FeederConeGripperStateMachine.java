@@ -16,11 +16,11 @@ public class FeederConeGripperStateMachine extends TimedState<FeederConeGripperS
 
     @Override
     protected Time getStateTransitionDuration() {
-        return new Time(10d, TimeUnits.MILLISECONDS);
+        return new Time(30d, TimeUnits.MILLISECONDS);
     }
 
     public enum State implements Namable {
-        OPEN("Open",0.95d), CLOSE("Close", 0.70d);
+        OPEN("Open",0.93d), CLOSE("Close", 0.75d);
 
         private final String name;
         private final double Position;

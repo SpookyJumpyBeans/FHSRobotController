@@ -11,9 +11,9 @@ public class StackTracker {
     private static final double INITIAL_HEIGHT = 9.0d; //used to be 10.25, changed 12/20
     private static final double FEEDER_DUMPER_HEIGHT = 3.625d; //used to be 3.875, changed 12/21
 
-    private static final double INITIAL_POLE_HEIGHT = 7.25d; //0, 7, 12, 16.75 (will become 18)
-    private static final double POLE_HEIGHT_DIFFERENCE = 5d;
-    private static final double MAX_POLE_TARGET_HEIGHT = 16.75;
+    private static final double INITIAL_POLE_HEIGHT = 6.7d; //0, 6.7, 11.3, 15.8
+    private static final double POLE_HEIGHT_DIFFERENCE = 4.5d;
+    private static final double MAX_POLE_TARGET_HEIGHT = 15.8;
     private int POLE_TARGET_TYPE = 0; //0, 1, 2, 3
 
     public StackTracker() {

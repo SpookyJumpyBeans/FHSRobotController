@@ -6,7 +6,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 
 import java.util.function.DoubleConsumer;
 
-public class FeederExtensionStateMachine implements IState<FeederExtensionStateMachine.State> {
+public class
+        FeederExtensionStateMachine implements IState<FeederExtensionStateMachine.State> {
     private static DoubleConsumer runExtension;
     private Feeder feeder;
     private State state;

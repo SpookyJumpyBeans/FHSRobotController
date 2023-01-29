@@ -54,7 +54,7 @@ public class PPAutoRobot {
 //        );
 
         setMotors(new RevMotor[] {
-                new RevMotor((ExpansionHubMotor)(hardwareMap.get("motorLift")), false, true, false, false, Motor.GOBILDA_312_RPM.getENCODER_TICKS_PER_REVOLUTION(), 0.7402879093)
+                new RevMotor((ExpansionHubMotor)(hardwareMap.get("motorLift")), true, true, false, false, Motor.GOBILDA_312_RPM.getENCODER_TICKS_PER_REVOLUTION(), 0.7402879093)
         });
 
         setServos(new RevServo[] {

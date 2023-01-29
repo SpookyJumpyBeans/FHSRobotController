@@ -58,9 +58,9 @@ public class PPTeleop extends PPTeleopRobot {
 
         drive.setWeightedDrivePower(
                 new Pose2d(
-                        gamepad1.left_stick_y * speedMultiplier,
-                        gamepad1.left_stick_x * speedMultiplier,
-                        gamepad1.right_stick_x * speedMultiplier
+                        -gamepad1.left_stick_y * speedMultiplier,
+                        -gamepad1.left_stick_x * speedMultiplier,
+                        -gamepad1.right_stick_x * speedMultiplier
                 )
         );
 
@@ -79,6 +79,9 @@ public class PPTeleop extends PPTeleopRobot {
             drive.robot.getFeeder().extendPoles();
         } else if(getEnhancedGamepad2().isDpadDownJustPressed()) {
             drive.robot.getFeeder().retract();
+        }
+        if(getEnhancedGamepad2().isaJustPressed()){
+            drive.robot.getFeeder().retractFail();
         }
 
 //        if(getEnhancedGamepad2().isRightBumperJustPressed() && drive.robot.getStackTracker().getExtensionHeight() == Feeder.getSetpoint()) {
@@ -102,7 +105,7 @@ public class PPTeleop extends PPTeleopRobot {
         telemetry.addLine("Extension Height: " + drive.robot.getFeeder().getLeftExtension().getPosition());
         telemetry.addLine("Extension State: " + Feeder.getFeederExtensionStateMachine().getState().getName());
         telemetry.addLine("Left Extension Power: " + drive.robot.getFeeder().getLeftExtension().getLastPower());
-        telemetry.addLine("Distance threshold: " + drive.robot.getFeeder().getConeInRobotDistanceThreshold());
+        //telemetry.addLine("Distance threshold: " + drive.robot.getFeeder().getConeInRobotDistanceThreshold());
         telemetry.addLine("Claw state:" + Feeder.getFeederConeGripperStateMachine().getState().getName());
         updateTelemetry(telemetry);
     }

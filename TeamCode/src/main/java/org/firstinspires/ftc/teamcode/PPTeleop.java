@@ -50,7 +50,7 @@ public class PPTeleop extends PPTeleopRobot {
         //Gamepad 1
         //drive
         if (getEnhancedGamepad1().getLeft_trigger() > 0) {
-            speedMultiplier = 0.7;
+            speedMultiplier = 0.65;
         }
         if (getEnhancedGamepad1().getRight_trigger() > 0) {
             speedMultiplier = 0.5;

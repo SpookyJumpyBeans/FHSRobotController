@@ -19,13 +19,13 @@ public class RedRight extends LinearOpMode {
     private static double dt;
     private static TimeProfiler updateRuntime;
 
-    static final Vector2d Traj0 = new Vector2d(30,25.5); //forward to pole
-    static final Vector2d Traj1 = new Vector2d(34, 25.5); //strafe left to pole
+    static final Vector2d Traj0 = new Vector2d(30,25); //forward to pole
+    static final Vector2d Traj1 = new Vector2d(34.3, 25.5); //strafe left to pole
     static final Vector2d Traj2 = new Vector2d(30,25.5); //strafe right to middle
     static final Vector2d Traj3 = new Vector2d(30, 38); //BACK
-    static final Vector2d Location1 = new Vector2d(55, 38);
+    static final Vector2d Location1 = new Vector2d(57, 37);
     //static final Vector2d Location2 = new Vector2d(30.5, 38);
-    static final Vector2d Location3 = new Vector2d(5,38);
+    static final Vector2d Location3 = new Vector2d(3,40);
 
     enum State {
         WAIT0,

@@ -20,12 +20,12 @@ public class BlueLeft extends LinearOpMode {
     private static TimeProfiler updateRuntime;
 
     static final Vector2d Traj0 = new Vector2d(30,25.5); //forward to pole
-    static final Vector2d Traj1 = new Vector2d(35, 25.5); //strafe left to pole
+    static final Vector2d Traj1 = new Vector2d(35.25, 25.5); //strafe left to pole
     static final Vector2d Traj2 = new Vector2d(30,25.5); //strafe right to middle
-    static final Vector2d Traj3 = new Vector2d(30, 38); //BACK
-    static final Vector2d Location1 = new Vector2d(55, 38);
+    static final Vector2d Traj3 = new Vector2d(30, 39); //BACK
+    static final Vector2d Location1 = new Vector2d(56 , 40);
     //static final Vector2d Location2 = new Vector2d(30.5, 38);
-    static final Vector2d Location3 = new Vector2d(5,38);
+    static final Vector2d Location3 = new Vector2d(4,40);
 
     enum State {
         WAIT0,
@@ -135,7 +135,7 @@ public class BlueLeft extends LinearOpMode {
                         telemetry.addLine("April Tag not found.");
                     }
 
-                    if (waitTimer.milliseconds() > 3000 && AprilTag != 0){
+                    if (waitTimer.milliseconds() > 1500 && AprilTag != 0){
                         telemetry.addLine("April Tag found: " + placement);
                         ppapriltags.close();
                         currentState = State.CLAWCLOSE;
